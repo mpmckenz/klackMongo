@@ -9,6 +9,31 @@ const connectionString = process.env.CONNECTIONSTRING || "mongodb://localhost:27
 app.use(express.static("./public"));
 app.use(express.json());
 
+let db = mongoose.connection;
+let Schema = mongoose.Schema;
+db.on("error", console.error.bind(console, "connection error:"));
+
+let messageSchema = new Schema({
+  message: String,
+  sender: String,
+  timestamp: Number
+})
+let Message = mongoose.model("Message", messageSchema)
+
+db.once("open", function () {
+  console.log("Thank God! You finally figured out how to use Mongoose Michael...")
+//   Message.find(err, messages) {
+//   if (err) throw err;
+//   newestMessage(sender, message)
+// }
+})
+
+// newestMessage(sender, message) {
+//   user[request.body.message] 
+//   if (user[request.body.timestamp] < user[request.body.timestamp])
+
+// }
+
 // Track last active times for each sender
 let users = {};
 
@@ -22,13 +47,11 @@ function userSortFn(a, b) {
   if (nameA > nameB) {
     return 1;
   }
-
   // names must be equal
   return 0;
 }
 
 app.get("/messages", (request, response) => {
-  // get the current time
   const now = Date.now();
 
   // consider users active if they have connected (GET or POST) in last 15 seconds
@@ -48,7 +71,10 @@ app.get("/messages", (request, response) => {
   users[request.query.for] = now;
 
   // send the latest 40 messages and the full user list, annotated with active flags
-  response.send({ messages: messages.slice(-40), users: usersSimple });
+  response.send({
+    messages: messages.slice(-40),
+    users: usersSimple
+  });
 });
 
 app.post("/messages", (request, response) => {
@@ -56,14 +82,11 @@ app.post("/messages", (request, response) => {
   const timestamp = Date.now();
   request.body.timestamp = timestamp;
 
-message.create({
+  message.create({
     sender: request.body.sender,
     message: request.body.message,
-    timestamp: request.body.timestamp
-})
-
-  // append the new message to the message list
-  messages.push(request.body);
+    timestamp: timestamp
+  })
 
   // update the posting user's last access timestamp (so we know they are active)
   users[request.body.sender] = timestamp;
@@ -74,6 +97,8 @@ message.create({
 });
 
 app.listen(port, () => {
-    mongoose.connect(connectionString, { useNewUrlParser: true})
-    console.log(`listening on http://localhost:${port}`)
+  mongoose.connect(connectionString, {
+    useNewUrlParser: true
+  })
+  console.log(`listening on http://localhost:${port}`)
 });
