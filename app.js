@@ -3,14 +3,8 @@ const path = require("path");
 const port = process.env.PORT || 3000;
 const app = express();
 const mongoose = require('mongoose');
-// temp DB vars until config is set up
-const dbName = "klackmongo";
-const DB_USER = "admin";
-const DB_PASSWORD = "admin1";
-const DB_URI = "ds133642.mlab.com:33642"
 
-// process.env.CONNECTION_STRING 
-const connectionString = `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_URI}/${dbName}`
+const connectionString = process.env.CONNECTION_STRING || "mongodb://localhost:27017/klackMongo"
 
 app.use(express.static("./public"));
 app.use(express.json());
