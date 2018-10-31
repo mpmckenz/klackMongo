@@ -4,7 +4,7 @@ const port = process.env.PORT || 3000;
 const app = express();
 const mongoose = require('mongoose');
 
-const connectionString = process.env.CONNECTION_STRING || "mongodb://localhost:27017/klackMongo"
+const connectionString = process.env.CONNECTIONSTRING || "mongodb://localhost:27017/klackMongo"
 
 app.use(express.static("./public"));
 app.use(express.json());
